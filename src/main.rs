@@ -1,21 +1,31 @@
-mod bcrypt_sequential;
-mod bcrypt_qthreaded;
+mod bcrypt_example;
 mod utils;
 
 use std::io;
 use std::time::Instant;
-use bcrypt_sequential::sequential;
-use bcrypt_qthreaded::qthreaded;
+use bcrypt_example::{
+    sequential::sequential,
+    qthreaded::qthreaded,
+    batched::batched,
+};
 
 fn main() -> io::Result<()> {
 
     let time = Instant::now();
-    sequential()?;
-    println!("Sequential: time elapsed: {} secs", time.elapsed().as_secs());
+    qthreaded()?;
+    let qthreaded_time_elapsed = time.elapsed().as_secs();
 
     let time = Instant::now();
-    qthreaded()?;
-    println!("Qthreaded: time elapsed: {} secs", time.elapsed().as_secs());
+    batched()?;
+    let batched_time_elapsed = time.elapsed().as_secs();
+
+    let time = Instant::now();
+    sequential()?;
+    let sequential_time_elapsed = time.elapsed().as_secs();
+
+    println!("Qthreaded  - time elapsed: {} secs", qthreaded_time_elapsed);
+    println!("Batched    - time elapsed: {} secs", batched_time_elapsed);
+    println!("Sequential - time elapsed: {} secs", sequential_time_elapsed);
 
     Ok(())
 }

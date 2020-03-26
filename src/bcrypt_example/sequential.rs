@@ -10,10 +10,13 @@ pub fn sequential() -> io::Result<()> {
     let mut out_file = OpenOptions::new().read(true).write(true).create(true).open(out_path.as_os_str())?;
     let lines = BufReader::new(in_file).lines();
 
+    let mut iteration = 0;
     for line in lines {
         let pass = line?;
+        println!("sequential iteration: {}", iteration);
+        iteration += 1;
         if pass.len() > 0 {
-            let result = hash(pass, 4);
+            let result = hash(pass, 8);
             if let Ok(hashed) = result {
                 out_file.write(hashed.as_bytes())?;
             } else {
