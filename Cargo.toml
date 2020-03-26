@@ -1,0 +1,10 @@
+[package]
+name = "expr-bcrypt-qthreaded"
+version = "0.1.0"
+authors = ["Alan Darmasaputra <kelerchian@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+passwords = "3.0.0"
+bcrypt = "0.6.2"
+num_cpus = "1.12.0"
