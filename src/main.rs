@@ -13,15 +13,15 @@ fn main() -> io::Result<()> {
 
     let time = Instant::now();
     qthreaded()?;
-    let qthreaded_time_elapsed = time.elapsed().as_secs();
+    let qthreaded_time_elapsed = time.elapsed().as_millis();
 
     let time = Instant::now();
     batched()?;
-    let batched_time_elapsed = time.elapsed().as_secs();
+    let batched_time_elapsed = time.elapsed().as_millis();
 
     let time = Instant::now();
     sequential()?;
-    let sequential_time_elapsed = time.elapsed().as_secs();
+    let sequential_time_elapsed = time.elapsed().as_millis();
 
     println!("Qthreaded  - time elapsed: {} secs", qthreaded_time_elapsed);
     println!("Batched    - time elapsed: {} secs", batched_time_elapsed);
