@@ -35,14 +35,20 @@ pub fn batched() -> io::Result<()> {
     while let Some(batched_lines) = read_lines_batched(&mut lines, &threads_num) {
         println!("batched iteration: {}", &iteration);
         iteration += 1;
-        batched_lines
-            .into_iter()
-            .map(|line| thread::spawn(move || {
+
+        let mut join_handles = vec![];
+
+        for line in batched_lines {
+            join_handles.push(thread::spawn(move || {
                 match hash(line.as_bytes(), 8) {
                     Ok(hashed) => hashed,
                     Err(_) => String::from("hash-failed")
                 }
-            }))
+            }));
+        }
+
+        let results = join_handles
+            .into_iter()
             .map(|join_handle| join_handle.join())
             .for_each(|hashed| {
                 let res = match hashed {
