@@ -12,14 +12,14 @@ use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
 use std::thread::{self};
 
-struct Worker {
+struct QThread {
     join_handle: JoinHandle<()>,
     active_arc: Arc<Option<()>>,
     tx: Sender<Option<Box<dyn Fn() -> () + Send>>>,
 }
 
-impl Worker {
-    fn new() -> Worker {
+impl QThread {
+    fn new() -> QThread {
         let (tx, rx) = channel::<Option<Box<dyn Fn() -> () + Send>>>();
         let join_handle: JoinHandle<()> = thread::spawn(move || loop {
             match rx.recv().unwrap() {
@@ -31,7 +31,7 @@ impl Worker {
         });
 
         let active_arc: Arc<Option<()>> = Arc::new(None);
-        Worker {
+        QThread {
             tx,
             join_handle,
             active_arc,
@@ -58,20 +58,20 @@ impl Worker {
     }
 }
 
-struct WorkerRegulator {
-    workers: Vec<Rc<Worker>>,
+struct QThreadsRegulator {
+    workers: Vec<Rc<QThread>>,
 }
 
-impl WorkerRegulator {
-    fn new(worker_num: &usize) -> WorkerRegulator {
-        let mut workers: Vec<Rc<Worker>> = vec![];
+impl QThreadsRegulator {
+    fn new(worker_num: &usize) -> QThreadsRegulator {
+        let mut workers: Vec<Rc<QThread>> = vec![];
         for i in 0..*worker_num {
-            workers.push(Rc::new(Worker::new()));
+            workers.push(Rc::new(QThread::new()));
         }
-        WorkerRegulator { workers }
+        QThreadsRegulator { workers }
     }
 
-    fn find_available_worker(&self) -> Option<&Worker> {
+    fn find_available_worker(&self) -> Option<&QThread> {
         for worker in &self.workers {
             if worker.active_count() == 0 {
                 return Some(worker);
@@ -121,7 +121,7 @@ pub fn qthreaded() -> io::Result<()> {
             .open(out_path.as_os_str())?,
     ));
 
-    let mut worker_regulator = WorkerRegulator::new(&num_cpus::get());
+    let mut worker_regulator = QThreadsRegulator::new(&num_cpus::get());
     let mut lines_iter = BufReader::new(&in_file).lines();
     let mut iteration = 0;
     for line in lines_iter {
